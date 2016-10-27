@@ -1,0 +1,872 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <style>
+
+    *{
+      padding: 0;
+      margin: 0 ;
+      overflow: hidden;
+    }
+    canvas {
+      display: inline;
+      position: absolute;
+      
+    }
+    #myCanvas {
+
+    }
+    #mini{
+      bottom: 0;
+      right: 0;
+      z-index: 0;
+    }
+    h2{
+      display: none;
+      position: absolute;
+      left: 8%;
+      top: 15%;
+      z-index: 100;
+      font-family: txt;
+    }
+    @font-face {
+      font-family: 'digital';
+      src: url('./fonts/digital.ttf');
+    }
+    @font-face {
+      font-family: 'txt';
+      src: url('./fonts/MavenPro-Regular.ttf');
+    }
+    input[type=text] {
+      display: none;
+      position: absolute;
+      bottom: 10%;
+      left: 8%;
+      width: 78%;
+      padding: 12px 20px;
+      margin: 8px 0;
+    /* box-sizing: border-box;*/
+      font-size: 16px;
+      border: none;
+      font-family: txt;
+    }
+    #curves {
+      display: inline;
+    }
+
+
+    </style>
+  </head>
+  <body>
+  <h2 id="disp"> content </h2>
+  <p id="play"></p>
+    <canvas id="myCanvas" ></canvas>
+    <canvas id="mini"></canvas> 
+
+    <img src="./images/CarFinal.png" style="display: none;" id="car">
+    <img src="./images/CityNew.jpg" style="display: none;" id="city">
+    <img src="./images/BeachFinal.png" style="display: none;" id="beach">
+    <img src="./images/Fissure.png" style="display: none;" id="fissure">
+    <img src="./images/ScreenAlter.png" style="display: none; " id="popquiz">
+    <img src="./images/Flagger.png" style="display: none; " id="flagger">
+    <img src="./images/pothole.png" style="display: none;" id="pothole">
+    <img src="./images/NitroCrate.png" style="display: none;" id="nitroCrate">
+    <img src="./images/Speed.png" style="display: none;" id="statix">
+    <img src="./images/Pool.jpg" style="display: none;" id="watertex">
+    <img src="./images/own.png" style="display: none;" id="min">
+    <img src="./images/pointer.png" style="display: none;" id="pointer">
+
+    <img src="" style="display: none;" id="q">
+
+    <form>
+      <input type="text" name="answer" placeholder="Answer : " id="answer" onsubmit="return false;" >
+    </form>
+    <script type="text/javascript" src="curves.js"></script>
+    <script type="text/javascript" src="drawing.js"></script>
+    <script>
+      window.requestAnimFrame = (function(callback) {
+        return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.oRequestAnimationFrame || window.msRequestAnimationFrame ||
+        function(callback) {
+          window.setTimeout(callback, 1000 / 60);
+        };
+      })();
+
+
+/*--------------------------------------------------Drawing functions-------------------------------------------------------*/
+
+      
+        
+       
+
+/*----------------------------------------------------------Animate---------------------------------------------------------*/
+      function animate() {
+         heights();
+  /*------------------------------------------------------Common stuff------------------------------------------------------*/
+         if (!pause) {
+         seconds = (new Date()).getTime() - startTime;
+         
+         seconds = seconds/1000;
+         minutes = Math.floor(seconds/60);
+         
+
+         seconds = Math.floor( seconds % 60);
+
+       }
+         if (pause) {
+          last = (new Date()).getTime();
+        }
+
+        if (!upspeed && !downspeed && speed!=900) {
+          if (speed >0) {
+          speed = speed + decel*dt;
+        }
+        if (speed <0) {
+          speed = 0;
+        }
+        }  
+        dx = dt*speed/maxSpeed*300;
+        if (!pause) {
+        now =  (new Date()).getTime();
+        dt  = Math.min(1, (now - last) / 1000);
+        last = now;
+        
+        
+        newY = newY + speed*dt;
+      }
+        
+
+       /*--------------------------------------------Car vibrations---------------------------------------------------*/
+        if (number % 2 == 0 && speed!=0 ) {
+          car.x = car.x - 1/10;
+          
+        }
+        if (number % 2 != 0 && speed!=0) {
+          car.x = car.x + 1/10;
+          
+        }
+        
+        /*--------------------------------------------------------------------------------------------------------------*/
+         /*-----------------------------------------------Key Controls----------------------------------------------------------*/
+        if(upspeed && !downspeed) {
+         
+          if (speed < maxSpeed) {
+            speed = speed + acceleration*at/100;
+          }
+          if (speed > maxSpeed) {
+           if (nitrus.active || nitroTime > 0) {
+
+            } else {
+            speed = maxSpeed;
+          }
+          }
+         
+        }
+
+        if(downspeed & !upspeed) {
+            if (speed >= 0 ) {
+              speed = speed + breaking*at/100;
+            }
+            if (speed <0) {
+              speed = 0;
+            }
+            //pause = true;
+        
+        }
+
+        if (right) {
+          
+          if (speed > 0 && !pause) {
+            
+            if (car.x <= window.innerWidth/1.7 && car.x >= window.innerWidth/2.85 )
+            {
+              
+              car.x = car.x + dx;
+
+            }
+            else
+            {
+              
+            }
+        }
+        }
+        if (left) {
+          if (speed > 0 && !pause) {
+          if (car.x <= window.innerWidth/1.7 && car.x >= window.innerWidth/2.85 ) {
+          car.x = car.x - dx;
+
+        }
+        }
+      }
+
+      if (car.x < window.innerWidth / 2.85) {
+          car.x = window.innerWidth/2.85;
+        }
+        if (car.x > window.innerWidth / 1.7) {
+          car.x = window.innerWidth / 1.7;
+        }
+
+
+      if (nitro) {
+        if (nt >= 10 && nitrus.have == 1) {
+          nitrus.active = true;
+        }
+        else{}
+      }
+
+      if (nitrus.active && !pause) {
+        if (speed < 900) {
+          speed = speed + 80;
+        }
+        if (speed > 900) {
+          speed = 900;
+        }
+        if (speed == 900) {
+          nitroTime = nitroTime + dt;
+        }
+      }
+      if (nitroTime >= 5 ) {
+        if (speed > maxSpeed) {
+          speed = speed - 60;
+          nitrus.active = false;
+          nt = 0;
+          nitrus.have = 0;
+        }
+        if (speed <= maxSpeed) {
+          nitroTime = 0;
+        } 
+      }
+
+     if (index < 1000) {
+
+ /*-----------------------------------------------Obstacle Spawn----------------------------------------------------------*/  
+
+
+      if (index % 5 == 0) {
+
+        if (obstacle.fissureY >= window.innerHeight) {
+          
+            if (!executed) {
+          rand = Math.floor(Math.random()*2 );
+         
+          obCount = parseInt(newY / window.innerHeight);
+          obCount = obCount + 1;
+          executed = true;        
+        div = (Math.random()*5 + obCount);
+        obstacle.fissureX = (Math.random() * (window.innerWidth* 53/150 - window.innerWidth*41/75) + window.innerWidth*41/75);
+      
+      }
+      }
+      }
+      else{
+        executed =  false;
+      }
+      if (index % 20 == 0) {
+        if (nitrus.y > window.innerHeight) {
+          nitrus.n += 2;
+          nitrus.x = (Math.random() * (window.innerWidth* 53/150 - window.innerWidth*41/75) + window.innerWidth*41/75);
+          nitrus.disp  = true;          
+        }
+      }
+        
+        one.y = newY - index*window.innerHeight*2/5;
+        two.y = one.y + window.innerHeight*2/5;
+        three.y = one.y +window.innerHeight*4/5;
+        road.backY = newY - window.innerHeight*2*(indexTwo);
+        //road.cityY = newY - window.innerHeight*3*(indexThree);
+        obstacle.fissureY = newY - window.innerHeight * div ;
+        checkpoint.y = newY - window.innerHeight*order;    
+        nitrus.y = newY - window.innerHeight*5*nitrus.n;
+        
+        
+        
+
+
+        if (three.y >= window.innerHeight) {
+          index ++;
+        }
+        if (road.backY >= 0) {
+          indexTwo = indexTwo + 1;
+        }
+        
+        if(index >=200) {
+          index = 200;
+          one.y = -window.innerHeight;
+        }
+        //var check = img.getBoundingClientRect();
+
+      /*-----------------------------------------------------Obstacle Check-------------------------------------------------*/
+      if (car.y < obstacle.fissureY + obstacleA[rand].h - 10 && obstacle.fissureY + 20 < car.y + car.h) {
+        if (!check) {
+          if (car.x + car.w > obstacle.fissureX + 10 && obstacle.fissureX + obstacleA[rand].w - 10 > car.x) {
+            if (speed > 0 ) {
+                speed = speed - 60;
+                nitrus.active = false;
+                nitroTime = 5;
+              }
+              if (speed < 0) {
+                speed = 0;
+              }
+              if (speed == 0) {
+                check = true;
+                upspeed = false;
+                
+                
+                
+                nt = 0;
+              }
+           }
+       }
+     }
+     else{
+      check = false;
+     }
+     if (car.y < nitrus.y + nitrus.h && nitrus.y < car.y + car.h) {
+      if (car.x + car.w > nitrus.x && nitrus.x + nitrus.w > car.x) {
+        if (nitrus.have == 0) {
+          nitrus.have = 1;
+          
+        }
+        nitrus.disp = false;
+      }
+     }
+
+    /*----------------------------------------------------------------------------------------------------------------------*/
+        
+        
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+
+
+        path();
+        
+        drawRectangle(one, two, three, context);
+        sidelanes();
+        
+       
+        beachBackground();
+        cityBackground();
+        
+        obSpawn(obstacleA[rand].img,obstacle.fissureX, obstacle.fissureY, obstacleA[rand].w, obstacleA[rand].h);
+
+
+        if (nitrus.disp) {
+        obSpawn(nitrus.img, nitrus.x, nitrus.y, nitrus.w, nitrus.h);
+      }
+
+
+        
+        
+        obSpawn(speedmeter.img, speedmeter.x, speedmeter.y, speedmeter.w, speedmeter.h);
+        speedometer(parseInt( speed/10),window.innerWidth/10, window.innerHeight*7.43/8, 35);
+        if (seconds < 10 && minutes < 10) {
+        speedometer('0' + minutes + ':0' + seconds, window.innerWidth/10, window.innerHeight*6.98/8, 20);
+
+        }
+        if (seconds >= 10 && minutes < 10) {
+        speedometer('0' + minutes + ':' + seconds, window.innerWidth/10, window.innerHeight*6.98/8, 20);
+
+        }
+        if (seconds >= 10 && minutes >= 10) {
+        speedometer(minutes + ':' + seconds, window.innerWidth/10, window.innerHeight*6.98/8, 20);
+
+        }
+        if (nitrus.have) {
+          if (nitroTime == 0) {
+            divide = 0.09523;
+          }
+          else {
+          divide = (0.09523 - nitroTime*0.0190);
+          
+        }
+       
+        }
+        else{
+          divide = 0;
+        }
+       
+        nitroBar(divide);
+        miniImg();
+        
+        drawCheckpoint();
+        drawCar();
+
+        //quizPop();
+   /*------------------------------------------------Checkpoints----------------------------------------------------------*/
+
+      if (car.y <= checkpoint.y + window.innerHeight/25 && !answer ) {
+        quizPop();
+        pause = true;
+        speed = 0;
+        questionDisp();
+      }
+      if (answer) {
+        pause = false;
+        quizTxt.style.display = 'none';
+        document.getElementById('answer').style.display = 'none';
+      }
+      if (checkpoint.y > window.innerHeight) {
+        order = order + 20;
+        answer = false;
+        ques = ques + 1;
+      }
+      
+      
+     
+      }
+
+      //----------------------------------------------------Curve Animation----------------------------------------------
+     /*if (index <= 10) {
+
+        road.y = nextY;
+        one.y = newY - index*window.innerHeight*2/5;
+        two.y = one.y + window.innerHeight*2/5;
+        three.y = one.y +window.innerHeight*4/5;
+        road.backY = newY - window.innerHeight*2*(indexTwo);
+        if (road.backY >= window.innerHeight) {
+          nextY = nextY + speed*dt;
+        }
+        if (road.backY < window.innerHeight) {
+          if (three.y >= window.innerHeight) {
+          index ++;
+        }
+        }
+        if (road.backY >= 0 && indexCurve <=3) {
+          //indexTwo = indexTwo + 1;
+        }
+        
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        path();
+        
+        beachBackground();
+        cityBackground();
+        speedometer(speed);
+        drawRectangle(one, two, three, context);
+        sidelanes();
+        drawCar();
+
+     }*/
+     /*if (index <= 10) {
+        
+        if (indexCurve >3) {
+          waterTexture();
+
+          if (multiple > 15) {
+          multiple = multiple -  dt*2;
+        }
+        if (multiple < 15 && multiple > 10) {
+          multiple = multiple - dt;
+        }
+        if (multiple <10 && multiple > 6) {
+          multiple = multiple - dt/2;
+        }
+
+        if (multiple <= 6) {
+          multiple = multiple - dt/4;
+        }
+              if (multiple <= 1) {
+          multiple = 1;
+        }
+        }
+        //multiple = 1;
+        radius = 4*multiple*window.innerWidth/3;
+        
+        tetha = Math.atan(window.innerHeight/window.innerWidth);
+        tetha = 1+tetha;
+
+        
+        tethaTwo = Math.asin(window.innerHeight/(radius - window.innerWidth/3));
+        tethaTwo +=1;
+
+        
+        phi = Math.asin(window.innerHeight/(radius - window.innerWidth*1.5/100 ));
+        phi = phi + 1;
+
+        
+        phiTwo = Math.asin(window.innerHeight/ (radius - window.innerWidth*191/600));
+        phiTwo = phiTwo + 1;
+    
+       
+        betaMid = Math.asin(window.innerHeight/ (radius - window.innerWidth/6));
+        betaMid = betaMid/Math.PI;
+
+        midRadius = radius - window.innerWidth/6 - window.innerWidth/200;
+
+    
+
+        newBeta = newBeta + speed*dt/(midRadius*3.2);
+        
+        one.angle = indexCurve*2*betaMid/5 - newBeta;
+        
+        
+        if (one.angle <= -betaMid*2/5) {
+          indexCurve++;
+        }
+        
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        
+      
+        
+        beachBackground();
+        cityBackground();
+      
+       
+      
+        
+        curvePath();
+        obSpawn(speedmeter.img, speedmeter.x, speedmeter.y, speedmeter.w, speedmeter.h);
+        speedometer(speed);
+        sideCurveLanes();
+        midCurveLanes();
+        drawCar();
+
+        
+      }*/
+      if (!done) {
+      if (rPointer < window.innerWidth / 70) {
+        rPointer += dt*30;
+        //console.log(rPointer);
+      }
+      if (rPointer >= window.innerWidth / 70 ) {
+        rPointer = window.innerWidth / 70;
+        done = true;
+      }
+    }
+    else{
+      if (rPointer > window.innerWidth/ 200) {
+        rPointer -= dt*30;
+
+      }
+      if (rPointer <=window.innerWidth/ 200) {
+        rPointer = window.innerWidth/ 200;
+        done = false;
+      }
+    }
+        requestAnimFrame(function() {
+          animate();
+        });
+    }
+
+/*----------------------------------------------------Variables-----------------------------------------------------------------*/
+      var canvas = document.getElementById('myCanvas');
+      var context = canvas.getContext('2d');
+      context.canvas.width  = window.innerWidth;
+      context.canvas.height = window.innerHeight;
+
+      
+      var tetha, radius;
+      var multiple = 20;
+      var tethaTwo;
+      var betaMid;
+      var phiTwo;
+      var midRadius;
+      var phi;
+
+      var one = {
+        x: window.innerWidth/2,
+        y: 0,
+        xTwo: window.innerWidth*4/9,
+
+        width: window.innerWidth/100,
+        height: window.innerHeight/5,
+        angle: betaMid/5
+      };
+      var two = {
+        x: window.innerWidth/2,
+        y: one.y + window.innerHeight*2/5,
+        xTwo: window.innerWidth*4/9,
+
+        width: window.innerWidth/100,
+        height: window.innerHeight/5
+      };
+      var three = {
+        x: window.innerWidth/2,
+        y: one.y + window.innerHeight*4/5,
+        xTwo: window.innerWidth*4/9,
+
+        width: window.innerWidth/100,
+        height: window.innerHeight/5
+      };
+      var road = {
+        y: 0,
+        backY: -window.innerHeight*2,
+        //cityY: -window.innerHeight*2
+      };
+      var car = {
+        x: window.innerWidth / 2.85,
+        y: window.innerHeight / 1.4,
+        w: window.innerWidth / 15,
+        h: window.innerHeight / 4
+      };
+      var obstacle = {
+        fissureX: window.innerWidth*53/150,
+        fissureY: 0,
+        fissureW: window.innerWidth/10,
+        fissureH: window.innerHeight/5  
+
+      };
+      var checkpoint = {
+        y: 0
+      };  
+      var divide = 0 ;
+
+      //-----------------------------------------------From Server Side----------------------------------------------------
+      var question = [
+         "Which Green car <br> is driven by <br> Brian Griffin in the <br> animated sitcom <q>Family Guy </q> ?",
+         "question 2",
+         "question 3"
+     ];
+
+      var url = './images/q1.png';
+
+      
+      var seconds = 0;
+      var minutes = 0;     
+
+
+      var KEY = {
+         LEFT:  37,
+         UP:    38,
+         RIGHT: 39,
+         DOWN:  40,
+         SPACE: 32,
+         ENTER: 13
+      };
+      var angularSpeed = speed/(midRadius*5);
+      var indexCurve = 0;
+      var newBeta = 0;
+      var nitroTime = 0;
+      var speed = 0;
+      var maxSpeed = 450;
+      var prevSpeed = speed;
+      var acceleration = 50;
+      var decel = -50;
+      var breaking = -75;
+      var at = 0;
+      var dt = 0;
+      var nt = 0;
+      var dx = 0;
+      var rand = 0;
+      var index = 0;
+      var indexTwo = 1;
+      var indexThree = 1;
+      var number = 0;
+      var startTime;
+      var upspeed;
+      var downspeed;
+      var left;
+      var right;
+      var nitro;
+      var now;
+      var last;
+      var newY = 0;
+      var speedtwo = 0;
+      var pause = true;
+      var nextY = 0;
+      var check = false ;
+      var img = document.getElementById("car");
+      var stopTime = 0;
+      var obCount = 1;
+      var div = 2;      
+      var executed = true;
+      var answer = false;
+      var order = 1;
+      var ques = 0;
+      var beachImg = document.getElementById('beach');
+      var cityImg = document.getElementById('city');
+      var fisImg = document.getElementById('fissure');
+      var quizImg = document.getElementById('popquiz');
+      var flagImg = document.getElementById('flagger');
+      var quizTxt = document.getElementById('disp');
+      var potImg = document.getElementById('pothole');
+      var nitroImg = document.getElementById('nitroCrate');
+      var speedImg = document.getElementById('statix');
+      var waterImg = document.getElementById('watertex');
+      var minimapImg = document.getElementById('min');
+      var pointerImg = document.getElementById('pointer');
+
+      var quesImg = document.getElementById('q');
+    
+      var obstacleA = [];
+      var rPointer = 0;
+      var done = false;
+      var pot = {
+        img: potImg,
+        x: window.innerWidth*53/150,
+        y: 0,
+        w: window.innerWidth/20,
+        h: window.innerHeight/5  
+
+      };
+      var fiss = {
+        img: fisImg,
+        x: window.innerWidth*53/150,
+        y: 0,
+        w: window.innerWidth/10,
+        h: window.innerHeight/5  
+
+      };
+      var nitrus = {
+        img: nitroImg,
+        x: window.innerWidth*53/150,
+        y: 0,
+        w: window.innerWidth/30,
+        h: window.innerHeight/5,
+        n: 1, 
+        have: 0,
+        disp: true,
+        active: false
+        
+      };
+
+     
+
+      var speedmeter = {
+        img: speedImg,
+        x: -window.innerWidth/100,
+        y: window.innerHeight*3.8/5,
+        w: window.innerWidth/4,
+        h: 0
+      };
+
+
+      function heights(){
+        pot.h = pot.w*potImg.height/potImg.width;
+        fiss.h = fiss.w*fisImg.height/fisImg.width;
+        obstacle.fissureH = obstacle.fissureW*fisImg.height/fisImg.width;
+        nitrus.h = nitrus.w*nitroImg.height/nitroImg.width;
+        speedmeter.h = speedmeter.w*speedImg.height/speedImg.width;
+        miniObj.h = miniObj.w*minimapImg.height/minimapImg.width;
+        obstacleA.push(pot);
+        obstacleA.push(fiss);
+        
+
+      }
+     
+      
+
+
+/*----------------------------------------------------Controls---------------------------------------------------------------*/
+    window.addEventListener('keydown', function(event) {
+      if (event.keyCode == 37) {
+        left = true;
+      }
+      if (event.keyCode == 38) {
+
+        upspeed = true;
+        at = at + 10;
+        
+      }
+      if (event.keyCode == 39) {
+        right = true;
+      }
+      if (event.keyCode == 40) {
+        downspeed = true;
+        at = at + 10;
+      }
+      if (event.keyCode == 32) {
+        nitro = true;
+        nt = nt + 10;  
+
+        if (nitrus.have == 0) {
+          nt = 0;
+        }      
+        
+      }
+      if (event.keyCode == 13) {
+       answer = true;
+      }
+      
+      
+    });
+    window.addEventListener('keyup', function(event) {
+      if (event.keyCode == 37) {
+        left = false;
+      }
+      if (event.keyCode == 38) {
+        upspeed = false;
+
+      }
+      if (event.keyCode == 39) {
+        right = false;
+      }
+      if (event.keyCode == 40) {
+        downspeed = false;
+      }
+      if (event.keyCode == 32) {
+        nitro = false;
+      }
+      at = 0;
+      
+     
+      
+    });
+
+/*-----------------------------------------------------Minimap---------------------------------------------------------------*/    
+   
+
+    var centerX = window.innerWidth*4.5/5;
+    var centerY = window.innerHeight*4/5;
+    var radiusMini = window.innerWidth / 10;
+
+     var miniObj = {
+        img: minimapImg,
+        x: centerX - window.innerWidth/10,
+        y: 0,
+        w: window.innerWidth/5,
+        h: 0
+      }
+    function miniImg() {
+      context.save();
+      context.beginPath();
+      context.arc(centerX, centerY, radiusMini, 0, 2 * Math.PI, false);
+      context.clip();
+      context.beginPath();
+
+      context.drawImage(minimapImg, miniObj.x, road.backY + window.innerHeight, miniObj.w, miniObj.h);
+
+      context.restore();
+
+      context.beginPath();
+      context.arc(centerX, centerY, radiusMini + window.innerWidth/300, 0, 2 * Math.PI, false);
+      var my_gradient = context.createLinearGradient(0,centerY - radiusMini,0, centerY + radiusMini);
+      my_gradient.addColorStop(0,"#191919");
+      my_gradient.addColorStop(0.5,'#666666');
+      my_gradient.addColorStop(1,"#191919");
+      context.strokeStyle=my_gradient;
+      context.lineWidth = window.innerWidth/150;
+      context.stroke();
+
+
+      context.beginPath();
+      context.arc(centerX, centerY, radiusMini + window.innerWidth/200, 0, 2 * Math.PI, false);
+      var grad = context.createLinearGradient(0, centerY - radiusMini, 0, centerY + radiusMini);
+      grad.addColorStop(0, '#c0c0c0');
+      grad.addColorStop(.5, '#909090');
+      grad.addColorStop(1, '#c0c0c0');
+      context.strokeStyle = grad;
+      context.lineWidth = window.innerWidth/400;
+      context.stroke();
+
+      
+      context.beginPath();
+      context.globalAlpha = 0.6;
+      context.arc(centerX, window.innerHeight*9.2/10, rPointer, 0, 2 * Math.PI, false);
+      context.fillStyle = "#1E8BC3";
+      context.fill();
+      context.globalAlpha = 1.0;
+      
+
+      context.drawImage(pointerImg, window.innerWidth*8.9/10, window.innerHeight*9/10 , window.innerWidth/50, window.innerHeight/25);
+
+ }
+      setTimeout(function() {
+        last =  (new Date()).getTime();
+        startTime = (new Date()).getTime();
+        pause = false;
+        animate();
+       
+
+      }, 100);
+    </script>
+  </body>
+</html>      
