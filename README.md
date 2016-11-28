@@ -1,2 +1,2 @@
-# LaneSwitch
-A retro-racing game created using HTML5, CSS3, Adobe Photoshop and JavaScript
+# LaneSwitch devel
+Development stages version list
